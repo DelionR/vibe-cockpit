@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  smoke:
+    name: Smoke test (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Build panel state (best-effort, ephemeral)
+        run: |
+          node bin/vibe.js init --root . || true
+          node bin/vibe.js scan || true
+
+      - name: Run smoke test
+        run: node tools/smoke.mjs

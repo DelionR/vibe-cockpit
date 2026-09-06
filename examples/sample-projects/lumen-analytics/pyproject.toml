@@ -1,0 +1,9 @@
+[project]
+name = "lumen-analytics"
+version = "0.4.2"
+description = "Lightweight analytics dashboard for side projects"
+requires-python = ">=3.10"
+dependencies = ["flask>=3.0", "pandas>=2.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]

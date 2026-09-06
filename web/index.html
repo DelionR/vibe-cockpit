@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Панель вайбкодинга</title>
+<style>
+  :root{
+    --bg:#f7f7f5; --card:#fff; --border:#D3D1C7; --soft:#F1EFE8;
+    --text:#2C2C2A; --muted:#888780;
+    --s0:#888780; --s1:#BA7517; --s2:#378ADD; --s3:#1D9E75; --s4:#639922; --s5:#7F77DD;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,"Segoe UI",Roboto,sans-serif;font-size:14px;line-height:1.5;}
+  header{padding:20px 24px 8px;}
+  h1{font-size:20px;font-weight:600;margin:0 0 4px;}
+  .meta{color:var(--muted);font-size:12px;}
+  .btn{font:inherit;font-size:13px;padding:7px 14px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text);cursor:pointer;}
+  .btn:hover{border-color:#B4B2A9;background:var(--soft);}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .settings{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-top:12px;}
+  .settings h3{margin:0 0 12px;font-size:14px;}
+  .settings .row{margin-bottom:12px;}
+  .settings label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;}
+  .settings textarea{width:100%;font:inherit;font-size:12px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text);min-height:64px;resize:vertical;font-family:ui-monospace,Consolas,monospace;}
+  .settings input[type=number]{width:120px;}
+  .settings .hint{font-size:11px;color:var(--muted);margin-top:4px;}
+  .settings .cols{display:flex;gap:16px;flex-wrap:wrap;}
+  .settings .note{color:#BA7517;font-size:12px;margin-top:8px;}
+  .wrap{padding:0 24px 40px;max-width:1500px;margin:0 auto;}
+  .cards{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0 20px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;min-width:104px;}
+  .card .n{font-size:22px;font-weight:600;}
+  .card .l{font-size:11px;color:var(--muted);}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+  input,select{font:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text);}
+  input{min-width:220px}
+  .chipset{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{border:1px solid var(--border);background:#fff;border-radius:999px;padding:4px 12px;font-size:12px;cursor:pointer;}
+  .chip.on{background:var(--soft);border-color:#B4B2A9;font-weight:600;}
+  main{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;}
+  @media (max-width:1000px){main{grid-template-columns:1fr}}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;}
+  .proj{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;cursor:pointer;}
+  .proj:hover{border-color:#B4B2A9;}
+  .proj .top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}
+  .proj .name{font-weight:600;font-size:14px;word-break:break-word;}
+  .badge{font-size:11px;font-weight:600;color:#fff;border-radius:6px;padding:2px 7px;white-space:nowrap;}
+  .bar{height:5px;background:var(--soft);border-radius:3px;margin:10px 0 8px;overflow:hidden;}
+  .bar i{display:block;height:100%;border-radius:3px;}
+  .line{font-size:12px;color:var(--muted);}
+  .flags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px;}
+  .flag{font-size:11px;border-radius:6px;padding:2px 7px;border:1px solid;}
+  .f-dup{background:#FAECE7;color:#993C1D;border-color:#F5C4B3}
+  .f-stale{background:#FAEEDA;color:#854F0B;border-color:#FAC775}
+  .f-orphan{background:#F1EFE8;color:#5F5E5A;border-color:#D3D1C7}
+  .f-risk{background:#FCEBEB;color:#A32D2D;border-color:#F7C1C1}
+  .f-dirty{background:#E6F1FB;color:#185FA5;border-color:#B5D4F4}
+  .details{display:none;margin-top:12px;border-top:1px solid var(--soft);padding-top:10px;}
+  .proj.open .details{display:block;}
+  .br{display:flex;align-items:center;gap:8px;font-size:12px;margin-bottom:4px;}
+  .br .k{width:86px;color:var(--muted);flex:none}
+  .br .v{width:34px;text-align:right;flex:none;font-variant-numeric:tabular-nums}
+  .br .t{flex:1;height:5px;background:var(--soft);border-radius:3px;overflow:hidden}
+  .br .t i{display:block;height:100%;background:#378ADD}
+  aside{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;position:sticky;top:16px;}
+  aside h3{margin:0 0 10px;font-size:13px;font-weight:600}
+  .feed{max-height:640px;overflow:auto;font-size:12px}
+  .ev{padding:6px 0;border-bottom:1px solid var(--soft);color:#444441}
+  .ev:last-child{border-bottom:none}
+  .ev .t{color:var(--muted);font-size:11px}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#1D9E75;margin-right:6px}
+  .dot.off{background:#B4B2A9}
+  section.dups{margin-top:28px;}
+  section.dups h2{font-size:16px;font-weight:600;margin:0 0 10px}
+  section.dups .chipset{margin:0 0 12px}
+  .warn{color:#BA7517;font-weight:600}
+  .lease-table{width:100%;border-collapse:collapse;font-size:13px}
+  .lease-table th{ text-align:left; color:var(--muted); font-weight:600; font-size:11px; padding:4px 12px 4px 0; border-bottom:1px solid var(--border);}
+  .lease-table td{padding:5px 12px 5px 0;border-bottom:1px solid var(--soft)}
+  .dgroup{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+  .dgroup .h{display:flex;justify-content:space-between;gap:10px;font-size:13px;font-weight:600;margin-bottom:6px}
+  .dgroup ul{margin:6px 0 0;padding-left:18px;font-size:12px;color:#444441}
+  .dgroup li{margin-bottom:3px}
+  .canon{color:#0F6E56;font-weight:600}
+  .tag{font-size:11px;color:var(--muted);font-weight:400}
+  .empty{color:var(--muted);font-size:13px}
+  /* Панель сценариев: один клик вместо консольной команды */
+  .scenarios{margin:2px 0 6px;}
+  .scenarios .sc-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .scenarios h2{font-size:16px;font-weight:600;margin:0;}
+  .scenarios .sub{color:var(--muted);font-size:12px;}
+  .sc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(228px,1fr));gap:10px;margin-bottom:12px;}
+  .sc{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;font:inherit;
+      background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;cursor:pointer;color:var(--text);}
+  .sc:hover{border-color:#B4B2A9;background:var(--soft);}
+  .sc.on{border-color:#85b7eb;background:#E6F1FB;}
+  .sc b{font-size:13px;font-weight:600;}
+  .sc .sc-desc{font-size:11px;color:var(--muted);line-height:1.35;}
+  .sc-out{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:13px;}
+  .sc-out:empty{display:none;}
+  .sc-out h4{margin:0 0 8px;font-size:13px;font-weight:600;}
+  .sc-out .muted{color:var(--muted);font-size:12px;}
+  .sc-out table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px;}
+  .sc-out th{text-align:left;color:var(--muted);font-weight:600;font-size:11px;padding:4px 12px 4px 0;border-bottom:1px solid var(--border);}
+  .sc-out td{padding:5px 12px 5px 0;border-bottom:1px solid var(--soft);vertical-align:top;}
+  .sc-out textarea{width:100%;min-height:240px;font:11px/1.55 ui-monospace,Consolas,monospace;
+      border:1px solid var(--border);border-radius:8px;padding:10px;background:#fff;color:var(--text);resize:vertical;}
+  .sc-out a.btn{text-decoration:none;display:inline-block;}
+  .sc-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px;}
+  .open-link{color:#185FA5;text-decoration:none;border-bottom:1px dashed #B5D4F4;cursor:pointer;}
+  .open-link:hover{border-bottom-style:solid;}
+  .mini{font:inherit;font-size:11px;padding:1px 8px;border:1px solid var(--border);border-radius:6px;background:#fff;color:var(--muted);cursor:pointer;margin-left:6px;}
+  .mini:hover{border-color:#B4B2A9;color:var(--text);}
+  .rootchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:3px 10px;font-size:12px;}
+  .rootchip b{font-weight:400;word-break:break-all;}
+  .rootchip .rm{cursor:pointer;color:var(--muted);font-weight:600;}
+  .rootchip .rm:hover{color:#A32D2D;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Панель вайбкодинга</h1>
+  <div class="meta" id="meta">загрузка…</div>
+  <div class="toolbar" style="margin:10px 0 0">
+    <button class="btn" id="btnSettings">⚙ Настройки</button>
+    <span class="tag" id="scanStatus"></span>
+  </div>
+  <div id="settingsPanel" style="display:none"></div>
+</header>
+
+<div class="wrap">
+  <section class="scenarios">
+    <div class="sc-head">
+      <h2>Что сделать?</h2>
+      <span class="sub">Нажмите сценарий — результат появится здесь же, под кнопками.</span>
+    </div>
+    <div class="sc-grid" id="scenarios">
+      <button class="sc" data-sc="attention"><b>Что требует решения</b><span class="sc-desc">Проекты с проблемами — самые горячие сверху</span></button>
+      <button class="sc" data-sc="near"><b>Найти похожие файлы</b><span class="sc-desc">Клоны, которые разошлись: удалять нельзя, надо сверить</span></button>
+      <button class="sc" data-sc="cleanup"><b>Что можно удалить</b><span class="sc-desc">Копии, дублирующие канон, и сколько это займёт</span></button>
+      <button class="sc" data-sc="refresh"><b>Обновить данные</b><span class="sc-desc">Пересчитать состояние с диска, прогресс в ленте</span></button>
+      <button class="sc" data-sc="report"><b>Собрать отчёт</b><span class="sc-desc">Один файл со всеми проектами, дублями и планом</span></button>
+      <button class="sc" data-sc="brief"><b>Контекст для новой сессии</b><span class="sc-desc">Сводка, чтобы агент не начинал с нуля</span></button>
+    </div>
+    <div class="sc-out" id="scOut"></div>
+  </section>
+
+  <div class="cards" id="cards"></div>
+
+  <div class="toolbar">
+    <input id="q" placeholder="Поиск по названию или пути">
+    <select id="sort">
+      <option value="attention">Сортировка: требуют решения</option>
+      <option value="valuePriority">Бизнес-приоритет: высокий → низкий</option>
+      <option value="value">Ценность (монетизация): высокая → низкая</option>
+      <option value="score">Score: высокий → низкий</option>
+      <option value="score-asc">Score: низкий → высокий</option>
+      <option value="stale">Застой: давние сверху</option>
+      <option value="name">По имени</option>
+    </select>
+    <div class="chipset" id="stages"></div>
+  </div>
+
+  <main>
+    <div class="grid" id="grid"></div>
+    <aside>
+      <h3>Живая лента <span id="conn" class="dot off"></span></h3>
+      <div class="feed" id="feed"></div>
+    </aside>
+  </main>
+
+  <section class="dups">
+    <h2>Аренды <span class="tag" id="conflicts"></span></h2>
+    <div id="leases"></div>
+  </section>
+
+  <section class="dups">
+    <h2>Подозрительные группы проектов</h2>
+    <div id="pgroups"></div>
+  </section>
+
+  <section class="dups" id="dupsTop">
+    <h2>Дубли файлов (топ по приоритету)</h2>
+    <div class="chipset" id="dupkinds"></div>
+    <div id="dgroups"></div>
+  </section>
+</div>
+
+<script>
+const STAGE_COLOR = { S0:'#888780', S1:'#BA7517', S2:'#378ADD', S3:'#1D9E75', S4:'#639922', S5:'#7F77DD' };
+const VALUE_TIER_LABEL = { M3:'Продаёт', M2:'Монетизируется', M1:'Идея на продажу', M0:'Вне бизнеса' };
+const VALUE_TIER_COLOR = { M3:'#1D9E75', M2:'#378ADD', M1:'#BA7517', M0:'#888780' };
+const MAX = { vision:10, scaffold:20, core:25, tests:15, config:10, deploy:10, docs:10 };
+const LABEL = { vision:'Замысел', scaffold:'Каркас', core:'Ядро', tests:'Тесты', config:'Конфиг', deploy:'Запуск', docs:'Документация' };
+
+let state = null;
+let filter = { q:'', sort:'attention', stage:'all', dupKind:'all', problems:false };
+let nameCounts = {};
+
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = id => document.getElementById(id);
+
+function fmtBytes(n){
+  if (!n) return '0';
+  const u = ['Б','КБ','МБ','ГБ'];
+  let i = 0, v = n;
+  while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+  return (v < 10 ? v.toFixed(1) : Math.round(v)) + ' ' + u[i];
+}
+
+function fmtDate(ms){
+  if (!ms) return '—';
+  const d = new Date(ms);
+  return d.toISOString().slice(0, 10);
+}
+
+function attention(p){
+  const actionable = (p.flags||[]).filter(f => ['dup','stale','orphan','risk','dirty'].includes(f.kind)).length;
+  return actionable * 10 + (100 - (p.score||0)) / 10;
+}
+
+function sortProjects(list){
+  const arr = [...list];
+  if (filter.sort === 'valuePriority') arr.sort((a,b) => (b.valuePriority||0) - (a.valuePriority||0));
+  else if (filter.sort === 'value') arr.sort((a,b) => (b.value||0) - (a.value||0));
+  else if (filter.sort === 'score') arr.sort((a,b) => (b.score||0) - (a.score||0));
+  else if (filter.sort === 'score-asc') arr.sort((a,b) => (a.score||0) - (b.score||0));
+  else if (filter.sort === 'stale') arr.sort((a,b) => (b.staleDays||0) - (a.staleDays||0));
+  else if (filter.sort === 'name') arr.sort((a,b) => a.name.localeCompare(b.name, 'ru'));
+  else arr.sort((a,b) => attention(b) - attention(a));
+  return arr;
+}
+
+function visible(){
+  const q = filter.q.trim().toLowerCase();
+  return sortProjects(state.projects.filter(p => {
+    if (filter.stage !== 'all' && p.stage !== filter.stage) return false;
+    if (filter.problems && !(p.flags || []).length) return false;
+    if (!q) return true;
+    return p.name.toLowerCase().includes(q) || p.path.toLowerCase().includes(q);
+  }));
+}
+
+function renderMeta(){
+  const s = state.summary || {};
+  let staleness = '';
+  if (state.scannedAt) {
+    const ageMin = Math.round((Date.now() - new Date(state.scannedAt).getTime()) / 60000);
+    if (ageMin >= 30) staleness = ` · <span class="warn">состояние устарело: ${ageMin >= 90 ? Math.floor(ageMin/60)+' ч' : ageMin+' мин'} назад</span>`;
+  }
+  $('meta').innerHTML =
+    `Проектов: ${state.projects.length} · с git: ${s.withGit||0} · с тестами: ${s.withTests||0} · `
+    + `дублей-групп: ${(state.dupGroups||[]).length} · застой >60д: ${s.stale60||0} · `
+    + `обновлено: ${state.scannedAt ? new Date(state.scannedAt).toLocaleString('ru-RU') : '—'}${staleness}`;
+
+  const scores = state.projects.map(p => p.score || 0);
+  const avg = scores.length ? Math.round(scores.reduce((a,b)=>a+b,0) / scores.length) : 0;
+  const vp = state.projects.map(p => p.valuePriority || 0);
+  const avgVp = vp.length ? Math.round(vp.reduce((a,b)=>a+b,0) / vp.length) : 0;
+  const monetized = state.projects.filter(p => ['M2','M3'].includes(p.valueTier)).length;
+  const cards = [
+    ['Всего проектов', state.projects.length],
+    ['Средний score', avg],
+    ['Средний бизнес-приоритет', avgVp],
+    ['Монетизируется (M2+)', monetized],
+    ['Групп дублей', (state.dupGroups||[]).length],
+    ['Можно освободить', fmtBytes(s.dupWastedBytes || 0)],
+    ['С git', s.withGit || 0],
+    ['С тестами', s.withTests || 0],
+    ['Застой >60д', s.stale60 || 0]
+  ];
+  $('cards').innerHTML = cards.map(([l,n]) =>
+    `<div class="card"><div class="n">${n}</div><div class="l">${esc(l)}</div></div>`).join('');
+}
+
+function renderStages(){
+  const counts = {};
+  for (const p of state.projects) counts[p.stage] = (counts[p.stage]||0) + 1;
+  const items = [['all','Все', state.projects.length]]
+    .concat(['S5','S4','S3','S2','S1','S0'].map(s => [s, s, counts[s]||0]));
+  $('stages').innerHTML = items.map(([v,l,n]) =>
+    `<div class="chip ${filter.stage===v?'on':''}" data-stage="${v}">${l} <span class="tag">${n}</span></div>`).join('');
+  $('stages').querySelectorAll('.chip').forEach(el => {
+    el.onclick = () => { filter.stage = el.dataset.stage; renderStages(); renderGrid(); };
+  });
+}
+
+function cardHtml(p){
+  const color = STAGE_COLOR[p.stage] || '#888780';
+  const stack = (p.stack||[]).join(', ') || '—';
+  const flags = (p.flags||[]).map(f =>
+    `<span class="flag f-${f.kind}">${esc(f.text)}</span>`).join('');
+  // Ось ценности/монетизации: бейдж тира + итоговый бизнес-приоритет.
+  const vt = p.valueTier || 'M0';
+  const vtColor = VALUE_TIER_COLOR[vt] || '#888780';
+  const vtLabel = VALUE_TIER_LABEL[vt] || 'Вне бизнеса';
+  const vp = p.valuePriority || 0;
+  const signals = (p.valueSignals||[]).map(s => esc(s.label)).join(', ') || '—';
+  const br = p.breakdown ? Object.entries(MAX).map(([k,max]) => {
+    const v = p.breakdown[k] || 0;
+    return `<div class="br"><span class="k">${LABEL[k]}</span>
+      <span class="t"><i style="width:${Math.round(v/max*100)}%"></i></span>
+      <span class="v">${v}/${max}</span></div>`;
+  }).join('') : '';
+  const pen = (p.penalties||[]).map(x => `<div class="line">штраф −${x.value}: ${esc(x.reason)}</div>`).join('');
+  const dup = p.dup && p.dup.files
+    ? `<div class="line">Дублей файлов: ${p.dup.files} из ${p.dup.total} (${Math.round(p.dup.ratio*100)}%)</div>` : '';
+  // Неуникальные имена различаем каталогом (как в vibe list).
+  const name = (nameCounts[p.name] || 0) > 1
+    ? `${esc(p.name)} <span class="tag">@ ${esc(p.path.split(/[\\/]/).slice(-2,-1)[0] || '')}</span>`
+    : esc(p.name);
+  return `<div class="proj${openCards.has(p.path) ? ' open' : ''}" data-path="${esc(p.path)}">
+    <div class="top">
+      <div class="name">${name}</div>
+      <div style="display:flex;gap:6px;align-items:center;flex:none">
+        <div class="badge" style="background:${vtColor}">${esc(vt)} · ${esc(vtLabel)}</div>
+        <div class="badge" style="background:${color}">${esc(p.stage||'—')} ${p.score ?? '—'}</div>
+      </div>
+    </div>
+    <div class="bar"><i style="width:${p.score||0}%;background:${color}"></i></div>
+    <div class="line">${esc(stack)} · git:${p.isGit?'есть':'нет'} · тесты:${p.hasTests?'есть':'нет'}</div>
+    <div class="line">Бизнес-приоритет: <b style="color:${vtColor}">${vp}</b> · источник ценности: ${esc(p.valueSource==='manual'?'ручной':'авто')}</div>
+    <div class="line">Активность: ${fmtDate(p.lastActivityMs)}${p.staleDays!=null?` · ${p.staleDays}д назад`:''}</div>
+    <div class="flags">${flags}</div>
+    <div class="details">
+      ${br}${pen}${dup}
+      <div class="line" style="margin-top:6px"><b>Ценность (монетизация):</b> ${p.value||0}/100 · сигналы: ${signals}</div>
+      <div class="line" style="margin-top:6px;word-break:break-all">📁 <a href="#" class="open-link" data-open="${esc(p.path)}" title="Открыть папку в проводнике">${esc(p.path)}</a><button class="mini" data-copy="${esc(p.path)}" title="Скопировать путь">копировать</button></div>
+    </div>
+  </div>`;
+}
+
+// Открытые карточки переживают перерисовку сетки: grid перерисовывается на
+// каждом обновлении состояния по SSE (вотчер шлёт их постоянно), и без этого
+// карточка закрывается сразу после клика. Закрытие — только повторным кликом.
+const openCards = new Set();
+
+function renderGrid(){
+  const list = visible();
+  $('grid').innerHTML = list.length
+    ? list.map(cardHtml).join('')
+    : '<div class="empty">Ничего не найдено</div>';
+  $('grid').querySelectorAll('.proj').forEach(el => {
+    el.onclick = () => {
+      const open = el.classList.toggle('open');
+      if (open) openCards.add(el.dataset.path); else openCards.delete(el.dataset.path);
+    };
+  });
+}
+
+// Ссылка «открыть папку» и «копировать путь» на карточках.
+// Перехват на фазе capture, чтобы клик не сворачивал/разворачивал карточку.
+$('grid').addEventListener('click', async (e) => {
+  const copyBtn = e.target.closest('[data-copy]');
+  if (copyBtn) {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      await navigator.clipboard.writeText(copyBtn.dataset.copy);
+      copyBtn.textContent = '✓ скопировано';
+      setTimeout(() => { copyBtn.textContent = 'копировать'; }, 1200);
+    } catch { copyBtn.textContent = '✗'; }
+    return;
+  }
+  const link = e.target.closest('a[data-open]');
+  if (link) {
+    e.preventDefault();
+    e.stopPropagation();
+    try {
+      const r = await fetch('/api/open?path=' + encodeURIComponent(link.dataset.open));
+      link.style.color = r.ok ? '#0F6E56' : '#A32D2D';
+    } catch { link.style.color = '#A32D2D'; }
+  }
+}, true);
+
+function fmtLeft(ms){
+  if (ms <= 0) return 'истекла';
+  const min = Math.floor(ms/60000);
+  if (min >= 60) return Math.floor(min/60) + ' ч' + (min%60 ? ' ' + min%60 + ' мин' : '');
+  if (min >= 1) return min + ' мин';
+  return Math.max(1, Math.round(ms/1000)) + ' с';
+}
+
+function renderLeases(){
+  const ls = state.leases || [];
+  $('conflicts').textContent = 'конфликтов: ' + (state.conflictsCount || 0);
+  if (!ls.length){
+    $('leases').innerHTML = '<div class="empty">Аренд нет — файлы свободны. Аренду берёт агент перед правкой чужого файла: <code>vibe lease &lt;проект&gt; &lt;файл|.&gt; --owner &lt;имя&gt;</code></div>';
+    return;
+  }
+  const rows = ls.map(l => `<tr>
+    <td><b>${esc(l.projectName)}</b><span class="tag">\\ ${esc(l.rel)}</span>${l.whole?' <span class="tag">весь проект</span>':''}</td>
+    <td><b>${esc(l.owner)}</b></td>
+    <td>${fmtLeft(l.leftMs)}</td>
+    <td class="tag">${esc(l.reason || '—')}</td>
+  </tr>`).join('');
+  $('leases').innerHTML = `<div class="dgroup"><table class="lease-table">
+    <tr><th>Файл / проект</th><th>Владелец</th><th>Осталось</th><th>Причина</th></tr>${rows}</table></div>`;
+}
+
+function renderDups(){
+  const pg = state.projectDupGroups || [];
+  $('pgroups').innerHTML = pg.length ? pg.map(g => `
+    <div class="dgroup">
+      <div class="h"><span>${esc(g.key)}</span><span class="tag">${g.members.length} проекта</span></div>
+      <ul>${g.members.map(m => `<li class="${m.isCanonical?'canon':''}">${esc(m.name)}
+        <span class="tag">${esc(m.stage)} · score ${m.score}</span>${m.isCanonical?' <span class="tag">← канон</span>':''}</li>`).join('')}</ul>
+    </div>`).join('') : '<div class="empty">Групп не найдено</div>';
+
+  // Фильтр по виду: все / точные / похожие (счётчики — по всему состоянию, не по топу)
+  const all = state.dupGroups || [];
+  const counts = state.dupKinds || {
+    all: all.length,
+    exact: all.filter(g => g.kind !== 'near').length,
+    near: all.filter(g => g.kind === 'near').length,
+  };
+  $('dupkinds').innerHTML = [['all','Все'],['exact','Точные'],['near','Похожие']]
+    .map(([k,l]) => `<div class="chip ${filter.dupKind===k?'on':''}" data-kind="${k}">${l} <span class="tag">${counts[k]}</span></div>`).join('');
+  $('dupkinds').querySelectorAll('.chip').forEach(el => {
+    el.onclick = () => { filter.dupKind = el.dataset.kind; renderDups(); };
+  });
+
+  const dg = all
+    .filter(g => filter.dupKind === 'all' || (filter.dupKind === 'near' ? g.kind === 'near' : g.kind !== 'near'))
+    .slice(0, 15);
+  $('dgroups').innerHTML = dg.length ? dg.map(g => {
+    const waste = g.kind !== 'near' && g.wastedBytes
+      ? ` · освободит ${fmtBytes(g.wastedBytes)}` : '';
+    return `
+    <div class="dgroup">
+      <div class="h"><span>${esc(g.label)}</span>
+        <span class="tag">${g.kind==='exact'?'точная копия':'похожий'} · расхождение ${Math.round((g.drift||0)*100)}% · ${g.members.length} файлов${g.crossProject?' · разные проекты':''}${waste}</span></div>
+      <ul>${g.members.map(m => `<li class="${m.isCanonical?'canon':''}">${esc(m.projectName)} / ${esc(m.rel)}
+        <span class="tag">${m.lines} стр · ${Math.round(m.size/1024)} КБ</span>${m.isCanonical?' <span class="tag">← канон (хранить)</span>':' <span class="tag">копия</span>'}</li>`).join('')}</ul>
+    </div>`;
+  }).join('') : '<div class="empty">Дублей не найдено</div>';
+}
+
+/* ─────────────── Настройки и запуск скана ─────────────── */
+
+let settingsOpen = false;
+let scanBusy = false;
+let refreshScanPending = false;
+let editRoots = [];
+
+function renderRootChips(){
+  const box = $('cfgRootChips');
+  box.innerHTML = editRoots.length
+    ? editRoots.map((r, i) => `<span class="rootchip"><b>${esc(r)}</b><span class="rm" data-i="${i}" title="убрать из корней">✕</span></span>`).join('')
+    : '<span class="tag">корни не заданы — добавьте хотя бы один</span>';
+  box.querySelectorAll('.rm').forEach(el => {
+    el.onclick = () => { editRoots.splice(Number(el.dataset.i), 1); renderRootChips(); };
+  });
+}
+
+function addRoot(v){
+  // Нормализуем к стилю конфига (прямые слеши) и дедупим без учёта регистра.
+  const p = String(v || '').trim().replace(/\\/g, '/').replace(/\/+$/, '');
+  if (!p) return;
+  if (editRoots.some((r) => r.toLowerCase() === p.toLowerCase())) return;
+  editRoots.push(p);
+  renderRootChips();
+}
+
+function settingsHtml(cfg){
+  const d = cfg.dup || {}, l = cfg.leases || {}, r = cfg.rating || {};
+  const w = r.weights || { monetization: 0.6, readiness: 0.4 };
+  const monMap = (cfg.monetization && typeof cfg.monetization === 'object') ? cfg.monetization : {};
+  const monText = Object.entries(monMap).map(([k, v]) => `${k} = ${(v && v.value != null) ? v.value : v}`).join('\n');
+  return `<div class="settings">
+    <h3>Настройки панели</h3>
+    <div class="row">
+      <label>Корни сканирования</label>
+      <div id="cfgRootChips" class="chipset" style="margin-bottom:8px"></div>
+      <select id="cfgRootPick" style="width:100%"><option value="">— выбрать папку для добавления —</option></select>
+      <div class="cols" style="margin-top:6px">
+        <input type="text" id="cfgRootManual" placeholder="или введите путь вручную и нажмите Enter, например /path/to/projects" style="flex:1">
+      </div>
+      <div class="hint">В списке — диски, уровнем выше и подкаталоги текущих корней. Панель живёт здесь: ${esc(cfg.panelRoot || '')}</div>
+    </div>
+    <div class="row cols">
+      <div><label>TTL аренд, минут</label><input type="number" id="cfgTtl" min="1" max="1440" value="${l.ttlMinutes ?? 30}"></div>
+      <div><label>Порог похожести (minhash)</label><input type="number" id="cfgNear" min="0.5" max="1" step="0.01" value="${d.nearThreshold ?? 0.85}"></div>
+      <div><label>Глубина обхода</label><input type="number" id="cfgDepth" min="1" max="20" value="${cfg.maxDepth ?? 8}"></div>
+      <div><label>Мин. строк в клоне</label><input type="number" id="cfgMinLines" min="1" max="1000" value="${d.minLines ?? 5}"></div>
+    </div>
+    <div class="row">
+      <label>Игнорируемые каталоги (маски, по одной на строку)</label>
+      <textarea id="cfgIgnore">${esc((cfg.ignore||[]).join('\n'))}</textarea>
+      <div class="hint">Стандартные служебные (node_modules, .git, dist…) добавляются всегда.</div>
+    </div>
+    <div class="row cols">
+      <div><label>Вес монетизации в приоритете</label><input type="number" id="cfgWMon" min="0" max="1" step="0.05" value="${w.monetization ?? 0.6}"></div>
+      <div><label>Вес готовности в приоритете</label><input type="number" id="cfgWReady" min="0" max="1" step="0.05" value="${w.readiness ?? 0.4}"></div>
+    </div>
+    <div class="row">
+      <label>Ручные веса ценности проектов (path = 0..100, по одному на строку)</label>
+      <textarea id="cfgMon" placeholder="/path/to/projects/MyProject = 100">${esc(monText)}</textarea>
+      <div class="hint">Истинный источник ценности: панель работает офлайн и не видит выручку. Ручной вес побеждает авто-детект (платёжный SDK, страница цен…). Ключ — путь проекта, как в карточке (можно скопировать кнопкой «копировать»).</div>
+    </div>
+    <div class="row">
+      <button class="btn" id="cfgSave">Сохранить</button>
+      <span class="tag" id="cfgMsg"></span>
+    </div>
+    <div class="note">После смены корней или порогов запустите «Обновить данные» — состояние пересоберётся, прогресс появится в живой ленте.</div>
+  </div>`;
+}
+
+function parseMonetization(text){
+  const map = {};
+  for (const line of text.split('\n')) {
+    const t = line.trim();
+    if (!t || t.startsWith('#')) continue;
+    const eq = t.indexOf('=');
+    if (eq < 0) continue;
+    const key = t.slice(0, eq).trim();
+    const num = Number(t.slice(eq + 1).trim());
+    if (!key || !Number.isFinite(num)) continue;
+    map[key] = { value: Math.max(0, Math.min(100, Math.round(num))) };
+  }
+  return map;
+}
+
+function readSettingsPatch(){
+  const ignore = $('cfgIgnore').value.split('\n').map(s => s.trim()).filter(Boolean);
+  return {
+    roots: [...editRoots],
+    ignore,
+    leases: { ttlMinutes: Number($('cfgTtl').value) },
+    dup: { nearThreshold: Number($('cfgNear').value), minLines: Number($('cfgMinLines').value) },
+    maxDepth: Number($('cfgDepth').value),
+    rating: { weights: { monetization: Number($('cfgWMon').value), readiness: Number($('cfgWReady').value) } },
+    monetization: parseMonetization($('cfgMon').value),
+  };
+}
+
+async function toggleSettings(){
+  settingsOpen = !settingsOpen;
+  const panel = $('settingsPanel');
+  panel.style.display = settingsOpen ? 'block' : 'none';
+  if (!settingsOpen){ panel.innerHTML = ''; return; }
+  panel.innerHTML = '<div class="settings"><span class="tag">загружаю настройки…</span></div>';
+  try {
+    const res = await fetch('/api/config').then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    });
+    panel.innerHTML = settingsHtml({ ...(res.config || {}), panelRoot: res.panelRoot });
+    editRoots = [...((res.config || {}).roots || [])];
+    renderRootChips();
+    // Выпадающий список: диски, родители и подкаталоги текущих корней
+    try {
+      const f = await fetch('/api/folders').then(r => r.json());
+      $('cfgRootPick').innerHTML = '<option value="">— выбрать папку для добавления —</option>'
+        + (f.folders || []).map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+    } catch { /* список недоступен — остаётся ручной ввод */ }
+    $('cfgRootPick').onchange = () => {
+      const v = $('cfgRootPick').value;
+      if (v) { addRoot(v); $('cfgRootPick').value = ''; }
+    };
+    $('cfgRootManual').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const v = $('cfgRootManual').value.trim();
+        if (v) { addRoot(v); $('cfgRootManual').value = ''; }
+      }
+    });
+    $('cfgSave').onclick = saveSettings;
+  } catch (e) {
+    panel.innerHTML = `<div class="settings"><span class="warn">✗ Не удалось загрузить настройки: ${esc(e.message)}</span></div>`;
+  }
+}
+
+async function saveSettings(){
+  const msg = $('cfgMsg');
+  msg.textContent = 'сохраняю…';
+  try {
+    const r = await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(readSettingsPatch()),
+    });
+    const data = await r.json();
+    msg.textContent = r.ok ? '✓ сохранено — пересканируйте, чтобы применить' : ('✗ ' + (data.error || r.status));
+  } catch (e) { msg.textContent = '✗ ' + e.message; }
+}
+
+async function startScan(){
+  if (scanBusy) return;
+  scanBusy = true;
+  const scBtn = document.querySelector('.sc[data-sc=refresh]');
+  if (scBtn) scBtn.disabled = true;
+  $('scanStatus').textContent = 'сканирую…';
+  try {
+    const r = await fetch('/api/scan', { method: 'POST' });
+    if (r.status === 409) $('scanStatus').textContent = 'сканирование уже идёт';
+  } catch (e) { $('scanStatus').textContent = '✗ ' + e.message; }
+}
+
+/* ─────────────── Сценарии использования ─────────────── */
+
+function scOut(html){ $('scOut').innerHTML = html || ''; }
+
+function scMark(name){
+  // Переключение на любой другой сценарий отменяет авто-очистку
+  // сообщения «Обновить данные» — не сотрём чужой результат.
+  if (name !== 'refresh') refreshScanPending = false;
+  $('scenarios').querySelectorAll('.sc').forEach(el => el.classList.toggle('on', el.dataset.sc === name));
+}
+
+// Снимает сообщение сценария «Обновить данные» после реального завершения скана.
+function clearRefreshMsg(){
+  if (!refreshScanPending) return;
+  refreshScanPending = false;
+  scMark(null);
+  scOut('');
+}
+
+function scrollToId(id){
+  const el = $(id);
+  if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+const SCENARIOS = {
+  attention(){
+    scMark('attention');
+    filter.sort = 'attention';
+    filter.problems = true;
+    $('sort').value = 'attention';
+    renderGrid();
+    const n = visible().length;
+    const total = state.projects.length;
+    scOut(`<h4>Что требует решения</h4>
+      <div class="muted">Показано <b>${n}</b> из ${total} проектов — только с флагами: дубли, застой, нет git или тестов. Первый в списке самый приоритетный. Клик по карточке раскрывает разбивку скора и штрафы.</div>
+      <div class="sc-actions"><button class="btn" id="scBack">Показать все проекты</button></div>`);
+    $('scBack').onclick = () => { filter.problems = false; scMark(null); renderGrid(); scOut(''); };
+    scrollToId('grid');
+  },
+
+  near(){
+    scMark('near');
+    filter.dupKind = 'near';
+    renderDups();
+    const n = (state.dupKinds || {}).near ?? (state.dupGroups || []).filter(g => g.kind === 'near').length;
+    scOut(`<h4>Похожие файлы</h4>
+      <div class="muted">Групп: <b>${n}</b>. Это не точные копии, а файлы с высоким совпадением (minhash) — обычно общий модуль, который разошёлся между проектами. Показывается процент расхождения: чем он больше, тем опаснее просто взять и удалить копию.</div>
+      <div class="sc-actions"><button class="btn" id="scBack">Показать все дубли</button></div>`);
+    $('scBack').onclick = () => { filter.dupKind = 'all'; scMark(null); renderDups(); scOut(''); };
+    scrollToId('dupsTop');
+  },
+
+  async cleanup(){
+    scMark('cleanup');
+    scOut('<h4>Что можно удалить</h4><div class="muted">считаю…</div>');
+    try {
+      const r = await fetch('/api/cleanup?kind=exact');
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+      if (!d.totalFiles) {
+        scOut('<h4>Что можно удалить</h4><div class="muted">Неканонических точных копий нет — освобождать нечего.</div>');
+        return;
+      }
+      const rows = d.projects.slice(0, 15).map(p => `<tr>
+        <td><b>${esc(p.name)}</b></td>
+        <td>${fmtBytes(p.wastedBytes)}</td>
+        <td>${p.files}</td>
+        <td>${p.whole ? '<span class="flag f-orphan">целиком не уникален</span>' : '<span class="tag">частично</span>'}</td>
+      </tr>`).join('');
+      const whole = d.wholeProjects.length
+        ? `<div class="muted" style="margin-top:6px">Целиком неуникальные проекты: ${d.wholeProjects.slice(0, 8).map(p => `<b>${esc(p.name)}</b>`).join(', ')} — их можно убрать целиком, но сначала убедитесь, что канон жив.</div>`
+        : '';
+      scOut(`<h4>Что можно удалить</h4>
+        <div class="muted">Неканонических точных копий: <b>${d.totalFiles}</b> файлов · <b>${fmtBytes(d.totalBytes)}</b> · ${d.totalLines} строк. Что хранить, помечено «канон» в разделе «Дубли файлов» ниже.</div>
+        ${whole}
+        <table><tr><th>Проект</th><th>Освободится</th><th>Файлов</th><th>Решение</th></tr>${rows}</table>
+        <div class="sc-actions"><span class="tag">Панель ничего не удаляет сама — это список для вашего решения.</span></div>`);
+    } catch (e) {
+      scOut(`<h4>Что можно удалить</h4><div class="warn">✗ ${esc(e.message)}</div>`);
+    }
+  },
+
+  refresh(){
+    scMark('refresh');
+    startScan();
+    refreshScanPending = true;
+    scOut('<h4>Обновить данные</h4><div class="muted">Сканирование идёт — прогресс виден в живой ленте справа. Карточки обновятся сами, как только состояние пересоберётся.</div>');
+  },
+
+  async report(){
+    scMark('report');
+    scOut('<h4>Собрать отчёт</h4><div class="muted">собираю…</div>');
+    try {
+      const r = await fetch('/api/report', { method:'POST' });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+      scOut(`<h4>Собрать отчёт</h4>
+        <div class="muted">Готово: отчёт по ${state.projects.length} проектам, ${(state.dupKinds || {}).all ?? 0} группам клонов и кандидатам на удаление.</div>
+        <div class="sc-actions">
+          <a class="btn" href="${esc(d.htmlUrl)}" target="_blank" rel="noopener">Открыть HTML</a>
+          <a class="btn" href="${esc(d.mdUrl)}" target="_blank" rel="noopener">Открыть Markdown</a>
+        </div>
+        <div class="muted" style="margin-top:8px;word-break:break-all">${esc(d.htmlPath)}</div>`);
+    } catch (e) {
+      scOut(`<h4>Собрать отчёт</h4><div class="warn">✗ ${esc(e.message)}</div>`);
+    }
+  },
+
+  async brief(){
+    scMark('brief');
+    scOut('<h4>Контекст для новой сессии</h4><div class="muted">собираю…</div>');
+    try {
+      const r = await fetch('/api/brief');
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+      scOut(`<h4>Контекст для новой сессии</h4>
+        <div class="muted">Вставьте это первым сообщением в новую сессию агента — он сразу получит текущее состояние, занятые файлы и план, а не начнёт с нуля.</div>
+        <textarea id="briefText" readonly>${esc(d.text)}</textarea>
+        <div class="sc-actions">
+          <button class="btn" id="briefCopy">Скопировать</button>
+          <span class="tag" id="briefMsg"></span>
+        </div>`);
+      $('briefCopy').onclick = async () => {
+        const ta = $('briefText');
+        const msg = $('briefMsg');
+        try {
+          await navigator.clipboard.writeText(ta.value);
+          msg.textContent = '✓ скопировано';
+        } catch {
+          ta.removeAttribute('readonly');
+          ta.select();
+          const ok = document.execCommand && document.execCommand('copy');
+          ta.setAttribute('readonly', 'readonly');
+          msg.textContent = ok ? '✓ скопировано' : '✗ выделите текст и скопируйте вручную';
+        }
+      };
+    } catch (e) {
+      scOut(`<h4>Контекст для новой сессии</h4><div class="warn">✗ ${esc(e.message)}</div>`);
+    }
+  },
+};
+
+$('scenarios').querySelectorAll('.sc').forEach(el => {
+  el.onclick = () => { const fn = SCENARIOS[el.dataset.sc]; if (fn) fn(); };
+});
+
+$('btnSettings').onclick = toggleSettings;
+
+function renderFeed(){
+  const log = state.log || [];
+  $('feed').innerHTML = log.length ? log.map(e =>
+    `<div class="ev"><div class="t">${new Date(e.ts).toLocaleTimeString('ru-RU')}</div>${esc(e.text)}</div>`).join('')
+    : '<div class="empty">Событий пока нет. Измените любой файл в отслеживаемых проектах.</div>';
+}
+
+function render(){
+  nameCounts = {};
+  for (const p of state.projects) nameCounts[p.name] = (nameCounts[p.name]||0) + 1;
+  renderMeta(); renderStages(); renderGrid(); renderLeases(); renderDups(); renderFeed();
+}
+
+function addLog(rec){
+  state.log = state.log || [];
+  state.log.unshift(rec);
+  if (state.log.length > 80) state.log.pop();
+  renderFeed();
+}
+
+$('q').oninput = e => { filter.q = e.target.value; renderGrid(); };
+$('sort').onchange = e => { filter.sort = e.target.value; renderGrid(); };
+
+fetch('/api/state').then(r => r.json()).then(data => {
+  state = data;
+  render();
+});
+
+const es = new EventSource('/api/events');
+es.addEventListener('open', () => $('conn').className = 'dot');
+es.addEventListener('error', () => $('conn').className = 'dot off');
+es.addEventListener('hello', () => $('conn').className = 'dot');
+es.addEventListener('log', e => addLog(JSON.parse(e.data)));
+// Статус скана приходит независимо от изменения state.json: даже если
+// скан упал до saveState, бейдж «сканирую…» всё равно сбросится.
+es.addEventListener('scanstatus', e => {
+  const sc = JSON.parse(e.data);
+  scanBusy = !!sc.running;
+  const scBtn = document.querySelector('.sc[data-sc=refresh]');
+  if (scBtn) scBtn.disabled = scanBusy;
+  $('scanStatus').textContent = sc.running ? 'сканирую…' : (sc.error ? '✗ ошибка скана' : '');
+  // Завершение/ошибка скана → убрать висящее сообщение сценария «Обновить данные».
+  if (!sc.running) clearRefreshMsg();
+});
+es.addEventListener('refresh', () => Promise.all([
+  fetch('/api/state').then(r => r.json()),
+  fetch('/api/scan').then(r => r.json()).catch(() => null),
+]).then(([d, sc]) => {
+  state = d; render();
+  if (sc) {
+    scanBusy = !!sc.running;
+    const scBtn = document.querySelector('.sc[data-sc=refresh]');
+    if (scBtn) scBtn.disabled = scanBusy;
+    $('scanStatus').textContent = sc.running ? 'сканирую…' : (sc.error ? '✗ ошибка скана' : '');
+    // Если скан уже не идёт — снимем сообщение «Обновить данные» (sc.running
+    // отражает реальный статус, поэтому ложных срабатываний от watch нет).
+    if (!sc.running) clearRefreshMsg();
+  }
+}));
+
+// При загрузке опрашиваем статус скана: если страница открыта давно и
+// бейдж «сканирую…» остался от прошлого запуска, он сбросится в «завершено».
+fetch('/api/scan').then(r => r.json()).then(sc => {
+  scanBusy = !!sc.running;
+  const scBtn = document.querySelector('.sc[data-sc=refresh]');
+  if (scBtn) scBtn.disabled = scanBusy;
+  $('scanStatus').textContent = sc.running ? 'сканирую…' : (sc.error ? '✗ ошибка скана' : '');
+}).catch(() => {});
+</script>
+</body>
+</html>

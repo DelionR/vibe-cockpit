@@ -1,0 +1,53 @@
+# Зависимости и сборки
+node_modules/
+dist/
+build/
+coverage/
+# Служебное состояние панели и данные агентов
+.vibe/
+state/
+reports/
+_serve.log
+_watch.log
+tmp-*.mjs
+.workbuddy-ai/
+# Отдельные проекты со своими репозиториями внутри панели
+interview-trainer/
+interview-trainer-modular/
+
+# Локальный конфиг пользователя (не шаблон)
+config.local.json
+# ОС и редакторы
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+# Секреты и логи
+.env
+.env.*
+!.env.example
+*.log
+
+# Приватные артефакты раскатки / локальные скрипты (не для публичного репозитория)
+.zcode/
+git-candidates.tsv
+git-rollout-results.txt
+tools/git-rollout-debug.mjs
+tools/git-rollout-list.mjs
+tools/git-rollout.sh
+docs/Переход-на-E-WorkBuddy.md
+ПЛАН-РАЗРАБОТКИ-ПАНЕЛИ.md
+Панель вайбкодинга.bat
+
+# Рабочие инструкции агентов: приватные КОРНЕВЫЕ файлы не публикуем.
+# Шаблоны для других проектов — в examples/templates/ (НЕ игнорируются).
+/AGENTS.md
+/CLAUDE.md
+/GEMINI.md
+
+# Вложенные .git в синтетических демо-проектах — не коммитим как субмодули
+examples/sample-projects/*/.git/
+
+# Рабочие журналы разработки (содержат приватные пути и имена проектов)
+PROGRESS.md
+PLAN-vibe-coding-dashboard.md

@@ -1,0 +1,823 @@
+{
+  "schema": 3,
+  "generatedAt": "2026-09-06T11:08:40.603Z",
+  "roots": [
+    "vibe-cockpit\\examples\\sample-projects"
+  ],
+  "scan": {
+    "dirsVisited": 54,
+    "projectsFound": 8,
+    "dupGroupsFound": 2,
+    "exactGroupsFound": 2,
+    "nearGroupsFound": 0,
+    "nearDupMs": 10,
+    "elapsedMs": 71
+  },
+  "projects": [
+    {
+      "id": "flutter-fitness",
+      "name": "flutter-fitness",
+      "path": "vibe-cockpit\\examples\\sample-projects\\flutter-fitness",
+      "stack": [],
+      "detectedReason": "git",
+      "files": 4,
+      "codeFiles": 2,
+      "testFiles": 1,
+      "loc": 51,
+      "bytes": 1076,
+      "locByLang": {
+        "DART": 28,
+        "YAML": 16,
+        "MD": 7
+      },
+      "has": {
+        "readme": true,
+        "docs": false,
+        "spec": true,
+        "tests": true,
+        "ci": false,
+        "docker": false,
+        "envExample": false,
+        "config": false,
+        "gitignore": false,
+        "agentContext": false,
+        "lockfile": false,
+        "git": true,
+        "remote": false
+      },
+      "names": [
+        ".git",
+        "lib",
+        "pubspec.yaml",
+        "README.md",
+        "test"
+      ],
+      "truncated": false,
+      "git": {
+        "branch": "master",
+        "remote": null,
+        "lastCommitAt": "2026-09-06T11:07:21.000Z",
+        "uncommitted": 0,
+        "worktrees": 1
+      },
+      "lastActivityAt": "2026-09-06T11:07:21.000Z",
+      "scannedAt": "2026-09-06T11:08:40.597Z",
+      "dupLines": 0,
+      "dupShare": 0,
+      "score": 34,
+      "scoreBase": 34,
+      "scoreParts": {
+        "idea": 10,
+        "scaffold": 7,
+        "core": 1,
+        "tests": 11,
+        "config": 0,
+        "deploy": 0,
+        "docs": 5
+      },
+      "scorePenalties": [],
+      "stage": "S1",
+      "stageLabel": "Каркас",
+      "flags": [
+        {
+          "code": "noremote",
+          "label": "нет remote"
+        }
+      ],
+      "priority": 60,
+      "value": 25,
+      "valueSource": "auto",
+      "valueSignals": [
+        {
+          "code": "pricing",
+          "label": "Страница/описание ценности",
+          "weight": 25
+        }
+      ],
+      "valueTier": "M0",
+      "valuePriority": 29
+    },
+    {
+      "id": "lumen-analytics",
+      "name": "lumen-analytics",
+      "path": "vibe-cockpit\\examples\\sample-projects\\lumen-analytics",
+      "stack": [
+        "python"
+      ],
+      "detectedReason": "git",
+      "files": 8,
+      "codeFiles": 2,
+      "testFiles": 1,
+      "loc": 84,
+      "bytes": 2180,
+      "locByLang": {
+        "YML": 13,
+        "PY": 37,
+        "TOML": 10,
+        "MD": 24
+      },
+      "has": {
+        "readme": true,
+        "docs": false,
+        "spec": false,
+        "tests": true,
+        "ci": true,
+        "docker": false,
+        "envExample": false,
+        "config": false,
+        "gitignore": false,
+        "agentContext": false,
+        "lockfile": false,
+        "git": true,
+        "remote": false
+      },
+      "names": [
+        ".git",
+        ".github",
+        "app.py",
+        "LICENSE",
+        "pyproject.toml",
+        "README.md",
+        "requirements.txt",
+        "shared-badge.md",
+        "tests"
+      ],
+      "truncated": false,
+      "git": {
+        "branch": "master",
+        "remote": null,
+        "lastCommitAt": "2026-09-06T11:07:14.000Z",
+        "uncommitted": 0,
+        "worktrees": 1
+      },
+      "lastActivityAt": "2026-09-06T11:07:14.000Z",
+      "scannedAt": "2026-09-06T11:08:40.597Z",
+      "dupLines": 0,
+      "dupShare": 0,
+      "score": 40,
+      "scoreBase": 40,
+      "scoreParts": {
+        "idea": 6,
+        "scaffold": 15,
+        "core": 1,
+        "tests": 11,
+        "config": 0,
+        "deploy": 2,
+        "docs": 5
+      },
+      "scorePenalties": [],
+      "stage": "S2",
+      "stageLabel": "Альфа",
+      "flags": [
+        {
+          "code": "noremote",
+          "label": "нет remote"
+        }
+      ],
+      "priority": 57,
+      "value": 25,
+      "valueSource": "auto",
+      "valueSignals": [
+        {
+          "code": "pricing",
+          "label": "Страница/описание ценности",
+          "weight": 25
+        }
+      ],
+      "valueTier": "M0",
+      "valuePriority": 31
+    },
+    {
+      "id": "pixel-forge",
+      "name": "pixel-forge",
+      "path": "vibe-cockpit\\examples\\sample-projects\\pixel-forge",
+      "stack": [
+        "node",
+        "react",
+        "tests"
+      ],
+      "detectedReason": "manifest",
+      "files": 7,
+      "codeFiles": 4,
+      "testFiles": 1,
+      "loc": 71,
+      "bytes": 1613,
+      "locByLang": {
+        "JSON": 20,
+        "MD": 17,
+        "TSX": 27,
+        "TS": 7
+      },
+      "has": {
+        "readme": true,
+        "docs": false,
+        "spec": false,
+        "tests": true,
+        "ci": false,
+        "docker": false,
+        "envExample": false,
+        "config": false,
+        "gitignore": false,
+        "agentContext": false,
+        "lockfile": false,
+        "git": false,
+        "remote": false
+      },
+      "names": [
+        "package.json",
+        "README.md",
+        "shared-badge.md",
+        "src",
+        "tests",
+        "vite.config.ts"
+      ],
+      "truncated": false,
+      "git": null,
+      "lastActivityAt": "2026-09-06T11:07:12.160Z",
+      "scannedAt": "2026-09-06T11:08:40.597Z",
+      "dupLines": 0,
+      "dupShare": 0,
+      "score": 38,
+      "scoreBase": 43,
+      "scoreParts": {
+        "idea": 6,
+        "scaffold": 15,
+        "core": 1,
+        "tests": 16,
+        "config": 0,
+        "deploy": 0,
+        "docs": 5
+      },
+      "scorePenalties": [
+        {
+          "code": "nogit",
+          "value": -5,
+          "reason": "нет git-репозитория"
+        }
+      ],
+      "stage": "S1",
+      "stageLabel": "Каркас",
+      "flags": [
+        {
+          "code": "nogit",
+          "label": "нет git"
+        }
+      ],
+      "priority": 58,
+      "value": 25,
+      "valueSource": "auto",
+      "valueSignals": [
+        {
+          "code": "pricing",
+          "label": "Страница/описание ценности",
+          "weight": 25
+        }
+      ],
+      "valueTier": "M0",
+      "valuePriority": 30
+    },
+    {
+      "id": "quantum-ledger",
+      "name": "quantum-ledger",
+      "path": "vibe-cockpit\\examples\\sample-projects\\quantum-ledger",
+      "stack": [
+        "node",
+        "server",
+        "typescript"
+      ],
+      "detectedReason": "git",
+      "files": 8,
+      "codeFiles": 3,
+      "testFiles": 1,
+      "loc": 102,
+      "bytes": 2391,
+      "locByLang": {
+        "YML": 13,
+        "JSON": 29,
+        "MD": 20,
+        "TS": 40
+      },
+      "has": {
+        "readme": true,
+        "docs": false,
+        "spec": false,
+        "tests": true,
+        "ci": true,
+        "docker": false,
+        "envExample": false,
+        "config": false,
+        "gitignore": false,
+        "agentContext": false,
+        "lockfile": true,
+        "git": true,
+        "remote": false
+      },
+      "names": [
+        ".git",
+        ".github",
+        "package-lock.json",
+        "package.json",
+        "README.md",
+        "shared-badge.md",
+        "src",
+        "test",
+        "tsconfig.json"
+      ],
+      "truncated": false,
+      "git": {
+        "branch": "master",
+        "remote": null,
+        "lastCommitAt": "2026-09-06T11:07:16.000Z",
+        "uncommitted": 0,
+        "worktrees": 1
+      },
+      "lastActivityAt": "2026-09-06T11:07:16.000Z",
+      "scannedAt": "2026-09-06T11:08:40.597Z",
+      "dupLines": 0,
+      "dupShare": 0,
+      "score": 45,
+      "scoreBase": 45,
+      "scoreParts": {
+        "idea": 6,
+        "scaffold": 20,
+        "core": 1,
+        "tests": 11,
+        "config": 0,
+        "deploy": 2,
+        "docs": 5
+      },
+      "scorePenalties": [],
+      "stage": "S2",
+      "stageLabel": "Альфа",
+      "flags": [
+        {
+          "code": "noremote",
+          "label": "нет remote"
+        }
+      ],
+      "priority": 55,
+      "value": 25,
+      "valueSource": "auto",
+      "valueSignals": [
+        {
+          "code": "pricing",
+          "label": "Страница/описание ценности",
+          "weight": 25
+        }
+      ],
+      "valueTier": "M0",
+      "valuePriority": 33
+    },
+    {
+      "id": "rust-cargo-tracker",
+      "name": "rust-cargo-tracker",
+      "path": "vibe-cockpit\\examples\\sample-projects\\rust-cargo-tracker",
+      "stack": [
+        "rust"
+      ],
+      "detectedReason": "git",
+      "files": 4,
+      "codeFiles": 2,
+      "testFiles": 1,
+      "loc": 31,
+      "bytes": 540,
+      "locByLang": {
+        "TOML": 7,
+        "MD": 7,
+        "RS": 17
+      },
+      "has": {
+        "readme": true,
+        "docs": false,
+        "spec": false,
+        "tests": true,
+        "ci": false,
+        "docker": false,
+        "envExample": false,
+        "config": false,
+        "gitignore": false,
+        "agentContext": false,
+        "lockfile": false,
+        "git": true,
+        "remote": false
+      },
+      "names": [
+        ".git",
+        "Cargo.toml",
+        "README.md",
+        "src",
+        "tests"
+      ],
+      "truncated": false,
+      "git": {
+        "branch": "master",
+        "remote": null,
+        "lastCommitAt": "2026-09-06T11:07:19.000Z",
+        "uncommitted": 0,
+        "worktrees": 1
+      },
+      "lastActivityAt": "2026-09-06T11:07:19.000Z",
+      "scannedAt": "2026-09-06T11:08:40.597Z",
+      "dupLines": 0,
+      "dupShare": 0,
+      "score": 38,
+      "scoreBase": 38,
+      "scoreParts": {
+        "idea": 6,
+        "scaffold": 15,
+        "core": 1,
+        "tests": 11,
+        "config": 0,
+        "deploy": 0,
+        "docs": 5
+      },
+      "scorePenalties": [],
+      "stage": "S1",
+      "stageLabel": "Каркас",
+      "flags": [
+        {
+          "code": "noremote",
+          "label": "нет remote"
+        }
+      ],
+      "priority": 58,
+      "value": 25,
+      "valueSource": "auto",
+      "valueSignals": [
+        {
+          "code": "pricing",
+          "label": "Страница/описание ценности",
+          "weight": 25
+        }
+      ],
+      "valueTier": "M0",
+      "valuePriority": 30
+    },
+    {
+      "id": "salebot-2023-archive",
+      "name": "salebot-2023-archive",
+      "path": "vibe-cockpit\\examples\\sample-projects\\salebot-2023-archive",
+      "stack": [
+        "node"
+      ],
+      "detectedReason": "manifest",
+      "files": 4,
+      "codeFiles": 2,
+      "testFiles": 0,
+      "loc": 52,
+      "bytes": 1607,
+      "locByLang": {
+        "JSON": 7,
+        "MD": 5,
+        "JS": 40
+      },
+      "has": {
+        "readme": true,
+        "docs": false,
+        "spec": false,
+        "tests": false,
+        "ci": false,
+        "docker": false,
+        "envExample": false,
+        "config": false,
+        "gitignore": false,
+        "agentContext": false,
+        "lockfile": false,
+        "git": false,
+        "remote": false
+      },
+      "names": [
+        "package.json",
+        "README.md",
+        "src"
+      ],
+      "truncated": false,
+      "git": null,
+      "lastActivityAt": "2026-09-06T11:08:31.762Z",
+      "scannedAt": "2026-09-06T11:08:40.597Z",
+      "dupLines": 29,
+      "dupShare": 0.5576923076923077,
+      "score": 12,
+      "scoreBase": 27,
+      "scoreParts": {
+        "idea": 6,
+        "scaffold": 15,
+        "core": 1,
+        "tests": 0,
+        "config": 0,
+        "deploy": 0,
+        "docs": 5
+      },
+      "scorePenalties": [
+        {
+          "code": "dups",
+          "value": -10,
+          "reason": "56% кода — дубли"
+        },
+        {
+          "code": "nogit",
+          "value": -5,
+          "reason": "нет git-репозитория"
+        }
+      ],
+      "stage": "S0",
+      "stageLabel": "Идея",
+      "flags": [
+        {
+          "code": "nogit",
+          "label": "нет git"
+        },
+        {
+          "code": "notests",
+          "label": "нет тестов"
+        },
+        {
+          "code": "dups",
+          "label": "56% дублей"
+        }
+      ],
+      "priority": 95,
+      "value": 35,
+      "valueSource": "auto",
+      "valueSignals": [
+        {
+          "code": "pricing",
+          "label": "Страница/описание ценности",
+          "weight": 25
+        },
+        {
+          "code": "intent",
+          "label": "Коммерческий замысел в названии",
+          "weight": 10
+        }
+      ],
+      "valueTier": "M1",
+      "valuePriority": 26
+    },
+    {
+      "id": "salebot-2024-backup",
+      "name": "salebot-2024-backup",
+      "path": "vibe-cockpit\\examples\\sample-projects\\salebot-2024-backup",
+      "stack": [
+        "node"
+      ],
+      "detectedReason": "manifest",
+      "files": 4,
+      "codeFiles": 2,
+      "testFiles": 0,
+      "loc": 52,
+      "bytes": 1613,
+      "locByLang": {
+        "JSON": 7,
+        "MD": 5,
+        "JS": 40
+      },
+      "has": {
+        "readme": true,
+        "docs": false,
+        "spec": false,
+        "tests": false,
+        "ci": false,
+        "docker": false,
+        "envExample": false,
+        "config": false,
+        "gitignore": false,
+        "agentContext": false,
+        "lockfile": false,
+        "git": false,
+        "remote": false
+      },
+      "names": [
+        "package.json",
+        "README.md",
+        "src"
+      ],
+      "truncated": false,
+      "git": null,
+      "lastActivityAt": "2026-09-06T11:07:12.432Z",
+      "scannedAt": "2026-09-06T11:08:40.597Z",
+      "dupLines": 29,
+      "dupShare": 0.5576923076923077,
+      "score": 12,
+      "scoreBase": 27,
+      "scoreParts": {
+        "idea": 6,
+        "scaffold": 15,
+        "core": 1,
+        "tests": 0,
+        "config": 0,
+        "deploy": 0,
+        "docs": 5
+      },
+      "scorePenalties": [
+        {
+          "code": "dups",
+          "value": -10,
+          "reason": "56% кода — дубли"
+        },
+        {
+          "code": "nogit",
+          "value": -5,
+          "reason": "нет git-репозитория"
+        }
+      ],
+      "stage": "S0",
+      "stageLabel": "Идея",
+      "flags": [
+        {
+          "code": "nogit",
+          "label": "нет git"
+        },
+        {
+          "code": "notests",
+          "label": "нет тестов"
+        },
+        {
+          "code": "dups",
+          "label": "56% дублей"
+        }
+      ],
+      "priority": 95,
+      "value": 35,
+      "valueSource": "inherited",
+      "valueSignals": [],
+      "valueTier": "M1",
+      "valuePriority": 26,
+      "isClone": true,
+      "cloneOf": "salebot-2023-archive"
+    },
+    {
+      "id": "salebot-classic",
+      "name": "salebot-classic",
+      "path": "vibe-cockpit\\examples\\sample-projects\\salebot-classic",
+      "stack": [
+        "node"
+      ],
+      "detectedReason": "manifest",
+      "files": 4,
+      "codeFiles": 2,
+      "testFiles": 0,
+      "loc": 51,
+      "bytes": 1506,
+      "locByLang": {
+        "JSON": 7,
+        "MD": 4,
+        "JS": 40
+      },
+      "has": {
+        "readme": true,
+        "docs": false,
+        "spec": false,
+        "tests": false,
+        "ci": false,
+        "docker": false,
+        "envExample": false,
+        "config": false,
+        "gitignore": false,
+        "agentContext": false,
+        "lockfile": false,
+        "git": false,
+        "remote": false
+      },
+      "names": [
+        "package.json",
+        "README.md",
+        "src"
+      ],
+      "truncated": false,
+      "git": null,
+      "lastActivityAt": "2026-09-06T11:07:12.340Z",
+      "scannedAt": "2026-09-06T11:08:40.597Z",
+      "dupLines": 29,
+      "dupShare": 0.5686274509803921,
+      "score": 12,
+      "scoreBase": 27,
+      "scoreParts": {
+        "idea": 6,
+        "scaffold": 15,
+        "core": 1,
+        "tests": 0,
+        "config": 0,
+        "deploy": 0,
+        "docs": 5
+      },
+      "scorePenalties": [
+        {
+          "code": "dups",
+          "value": -10,
+          "reason": "57% кода — дубли"
+        },
+        {
+          "code": "nogit",
+          "value": -5,
+          "reason": "нет git-репозитория"
+        }
+      ],
+      "stage": "S0",
+      "stageLabel": "Идея",
+      "flags": [
+        {
+          "code": "nogit",
+          "label": "нет git"
+        },
+        {
+          "code": "notests",
+          "label": "нет тестов"
+        },
+        {
+          "code": "dups",
+          "label": "57% дублей"
+        }
+      ],
+      "priority": 95,
+      "value": 35,
+      "valueSource": "inherited",
+      "valueSignals": [],
+      "valueTier": "M1",
+      "valuePriority": 26,
+      "isClone": true,
+      "cloneOf": "salebot-2023-archive"
+    }
+  ],
+  "dupGroups": [
+    {
+      "id": "dup-1",
+      "kind": "exact",
+      "hash": "e65c5c85f9c0d73c71cd97e1c0a35da60689c25730d988e9221973b614f888c2",
+      "similarity": 1,
+      "drift": 0,
+      "lines": 17,
+      "size": 754,
+      "projectCount": 3,
+      "crossProject": true,
+      "members": [
+        {
+          "projectId": "salebot-2023-archive",
+          "projectPath": "vibe-cockpit\\examples\\sample-projects\\salebot-2023-archive",
+          "rel": "src\\bot.js",
+          "size": 754,
+          "lines": 17,
+          "isCanonical": true
+        },
+        {
+          "projectId": "salebot-2024-backup",
+          "projectPath": "vibe-cockpit\\examples\\sample-projects\\salebot-2024-backup",
+          "rel": "src\\bot.js",
+          "size": 754,
+          "lines": 17,
+          "isCanonical": false
+        },
+        {
+          "projectId": "salebot-classic",
+          "projectPath": "vibe-cockpit\\examples\\sample-projects\\salebot-classic",
+          "rel": "src\\bot.js",
+          "size": 754,
+          "lines": 17,
+          "isCanonical": false
+        }
+      ],
+      "wastedBytes": 1508,
+      "wastedLines": 34
+    },
+    {
+      "id": "dup-2",
+      "kind": "exact",
+      "hash": "a733c86f2bdf60789b25e0294f574d97b89a7f6cb4a2c55c2eca1783cea493ac",
+      "similarity": 1,
+      "drift": 0,
+      "lines": 12,
+      "size": 502,
+      "projectCount": 3,
+      "crossProject": true,
+      "members": [
+        {
+          "projectId": "salebot-2023-archive",
+          "projectPath": "vibe-cockpit\\examples\\sample-projects\\salebot-2023-archive",
+          "rel": "src\\format.js",
+          "size": 502,
+          "lines": 12,
+          "isCanonical": true
+        },
+        {
+          "projectId": "salebot-2024-backup",
+          "projectPath": "vibe-cockpit\\examples\\sample-projects\\salebot-2024-backup",
+          "rel": "src\\format.js",
+          "size": 502,
+          "lines": 12,
+          "isCanonical": false
+        },
+        {
+          "projectId": "salebot-classic",
+          "projectPath": "vibe-cockpit\\examples\\sample-projects\\salebot-classic",
+          "rel": "src\\format.js",
+          "size": 502,
+          "lines": 12,
+          "isCanonical": false
+        }
+      ],
+      "wastedBytes": 1004,
+      "wastedLines": 24
+    }
+  ],
+  "isDemo": true
+}

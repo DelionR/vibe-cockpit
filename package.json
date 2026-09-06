@@ -1,0 +1,41 @@
+{
+  "name": "vibe-cockpit",
+  "version": "0.2.0",
+  "private": false,
+  "type": "module",
+  "bin": { "vibe": "bin/vibe.js" },
+  "description": "Панель управления вайбкодингом: инвентаризация проектов, readiness-скор, детектор дублей, живой дашборд, координация агентов. Ноль зависимостей.",
+  "homepage": "https://github.com/DelionR/vibe-cockpit#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DelionR/vibe-cockpit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DelionR/vibe-cockpit/issues"
+  },
+  "author": "Roman (DelionR)",
+  "license": "MIT",
+  "keywords": [
+    "vibecoding",
+    "portfolio",
+    "dashboard",
+    "cli",
+    "duplicates",
+    "agentic",
+    "readiness-score"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "scan": "node bin/vibe.js scan",
+    "stats": "node bin/vibe.js stats",
+    "list": "node bin/vibe.js list",
+    "dup": "node bin/vibe.js dup",
+    "report": "node bin/vibe.js report",
+    "serve": "node bin/vibe.js serve",
+    "demo": "node bin/vibe.js demo",
+    "smoke": "node tools/smoke.mjs",
+    "check": "node tools/smoke.mjs"
+  }
+}

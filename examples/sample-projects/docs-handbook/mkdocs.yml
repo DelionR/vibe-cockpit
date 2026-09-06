@@ -1,0 +1,7 @@
+site_name: Docs Handbook
+theme:
+  name: readthedocs
+docs_dir: docs
+nav:
+  - Home: intro.md
+  - Guide: guide.md

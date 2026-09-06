@@ -1,0 +1,6 @@
+{
+  "name": "salebot-2024-backup",
+  "version": "1.9.4",
+  "type": "module",
+  "scripts": { "start": "node src/bot.js" }
+}
