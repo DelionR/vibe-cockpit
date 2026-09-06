@@ -345,18 +345,14 @@ async function cmdStats(opts) {
 
 async function cmdServe(opts) {
   const port = Number(opts.port) || 5173;
-  const demo = !!opts.demo;
   let server;
   try {
-    server = await serve({ port, demo });
+    server = await serve({ port });
   } catch (err) {
     if (err && err.code === 'EADDRINUSE') {
       throw new Error(`Порт ${port} занят. Укажите другой: vibe serve --port ${port + 1}`);
     }
     throw err;
-  }
-  if (demo) {
-    console.log(`${C.yellow('◈')} Демо-режим: данные из ${C.bold('examples/demo-state.json')} (только просмотр)`);
   }
   console.log(`${C.green('✓')} Дашборд запущен: ${C.bold(`http://localhost:${port}`)}`);
   console.log(C.dim('  Обновите состояние в другой консоли: vibe scan — дашборд подхватит изменения.'));
@@ -389,11 +385,6 @@ async function cmdServe(opts) {
   };
   process.on('SIGINT', stop);
   process.on('SIGTERM', stop);
-}
-
-/** Псевдоним `vibe serve --demo`: поднять дашборд на вымышленных данных. */
-async function cmdDemo(opts) {
-  return cmdServe({ ...opts, demo: true });
 }
 
 export function findProjectEntry(state, q) {
@@ -1065,7 +1056,6 @@ ${C.bold('Команды')}
                                 (без бэкапов, копий, клонов и вложенных)
   vibe report [--out <dir>]     Markdown + HTML отчёт
   vibe serve [--port N]         живой веб-дашборд (по умолчанию порт 5173)
-  vibe demo [--port N]          дашборд на вымышленных данных (examples/demo-state.json)
 
 ${C.bold('Примеры')}
   vibe init --root "<YOUR_PROJECTS_DIR>"
@@ -1074,14 +1064,13 @@ ${C.bold('Примеры')}
   vibe list --sort stage
   vibe show sl-parser
   vibe refresh sl-parser
-  vibe demo                    # показать дашборд на демо-данных без сканирования
 `);
 }
 
 const COMMANDS = {
   init: cmdInit, scan: cmdScan, list: cmdList, show: cmdShow,
   dup: cmdDup, cleanup: cmdCleanup, report: cmdReport, stats: cmdStats, serve: cmdServe,
-  demo: cmdDemo, refresh: cmdRefresh, watch: cmdWatch, help: cmdHelp,
+  refresh: cmdRefresh, watch: cmdWatch, help: cmdHelp,
   lease: cmdLease, release: cmdRelease, leases: cmdLeases,
   conflicts: cmdConflicts, 'agents-md': cmdAgentsMd,
   handoff: cmdHandoff, brief: cmdBrief,

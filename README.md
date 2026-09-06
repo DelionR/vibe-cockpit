@@ -25,8 +25,9 @@
 - **Живой дашборд** (`vibe serve` + SSE): карточки, фильтры, лента событий.
 - **MCP-сервер** (12 инструментов) — любой код-агент достаёт данные панели
   вызовами инструментов, без запущенного дашборда.
-- **Демо-режим** (`vibe demo`) — дашборд на вымышленных данных, без доступа
-  к вашим файлам. Идеален для знакомства и скриншотов.
+- **Демо-режим** (`bin/vibe-demo.js`) — дашборд на вымышленных данных, без доступа
+  к вашим файлам. Изолированный модуль (`src/demo/`), не влияет на production-код.
+  Идеален для знакомства и скриншотов.
 
 ## Быстрый старт
 
@@ -36,12 +37,14 @@
 # Клонировать и запустить демо (вымышленные данные, ничего не сканируется)
 git clone https://github.com/DelionR/vibe-cockpit.git
 cd vibe-cockpit
-node bin/vibe.js demo
+node bin/vibe-demo.js
 # открой http://127.0.0.1:5173
 ```
 
 Демо загружает `examples/demo-state.json` (8 синтетических проектов, включая
-трёх-way кластер клонов `salebot-*`) и показывает все сценарии дашборда.
+трёх-way кластер клонов `salebot-*`) и показывает все сценарии дашборда. Это
+полностью отдельная точка входа: она импортирует только `src/demo/index.js`
+и не трогает конфиг/состояние реальной панели.
 
 ### Реальное использование
 
@@ -125,8 +128,9 @@ agents, and portfolio visualization.
 - **Live dashboard** (`vibe serve` + SSE): cards, filters, event stream.
 - **MCP server** (12 tools) — any code-agent pulls panel data via tool calls,
   no running dashboard required.
-- **Demo mode** (`vibe demo`) — dashboard on fictional data, no access to your
-  files. Perfect for a first look and screenshots.
+- **Demo mode** (`bin/vibe-demo.js`) — dashboard on fictional data, no access to your
+  files. An isolated module (`src/demo/`) that never touches production code.
+  Perfect for a first look and screenshots.
 
 ## Quick start
 
@@ -135,12 +139,14 @@ Requires **Node 22+**.
 ```bash
 git clone https://github.com/DelionR/vibe-cockpit.git
 cd vibe-cockpit
-node bin/vibe.js demo
+node bin/vibe-demo.js
 # open http://127.0.0.1:5173
 ```
 
 The demo loads `examples/demo-state.json` (8 synthetic projects, including a
 three-way `salebot-*` clone cluster) and exercises every dashboard scenario.
+It is a fully separate entry point that imports only `src/demo/index.js` and
+never touches the real panel's config or state.
 
 ### Real usage
 

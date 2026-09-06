@@ -12,6 +12,7 @@ import os from 'node:os';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { serve, buildView, describeEvent, buildCleanupView, buildBriefText, sanitizeConfigPatch } from '../src/serve.js';
+import { startDemo } from '../src/demo/index.js';
 import { applyMarkers } from '../src/scanner.js';
 import { loadState, buildState, rebuildDupGroupsForProject, buildCleanupReport, appendEvent, applyCloneValueInheritance } from '../src/store.js';
 import { EVENTS_PATH } from '../src/config.js';
@@ -950,7 +951,7 @@ async function main() {
   // ── Демо-режим ───────────────────────────────────────────────────
   console.log('\n== Демо-режим ==');
   {
-    const demoServer = await serve({ port: 0, demo: true });
+    const demoServer = await startDemo({ port: 0 });
     const dport = demoServer.address().port;
     try {
       const ds = await get(dport, '/api/state');

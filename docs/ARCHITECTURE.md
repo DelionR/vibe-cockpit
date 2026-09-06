@@ -681,9 +681,14 @@ GET  /api/events      → SSE: hello → log/refresh (fs.watch on state.json and
 прочее                → 404
 ```
 
-In **demo mode** (`vibe demo` / `serve({ demo: true })`) the server loads `examples/demo-state.json`
-instead of `.vibe/state.json`; `POST /api/config` and `POST /api/report` return 403, `POST /api/scan`
-simulates completion (202), `GET /api/open` is disabled, no `fs.watch` runs.
+**Demo mode** is fully isolated. The production server (`serve`) contains zero `demo` branches — it
+takes a `deps` object, and production uses `productionDeps()`. The demo is a **separate module**
+(`src/demo/index.js`, launched via `bin/vibe-demo.js`) that imports only `serve` as a library and
+supplies its own `demoDeps()`: it loads `examples/demo-state.json` instead of `.vibe/state.json`,
+`POST /api/config` and `POST /api/report` return 403, `POST /api/scan` simulates completion (202),
+`GET /api/open` is disabled, no `fs.watch` runs. The two entry points (`bin/vibe.js` → `src/cli.js`
+and `bin/vibe-demo.js` → `src/demo/index.js`) share no code paths, so the demo cannot affect the
+real app's startup or operation.
 
 ### Scoring model (`src/score.js`)
 

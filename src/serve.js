@@ -16,54 +16,6 @@ import { daysSince, formatAgo, formatBytes } from './util.js';
 
 const WEB_DIR = path.join(PANEL_ROOT, 'web');
 
-// Демо-режим: вместо реального .vibe/state.json отдаём вымышленный
-// examples/demo-state.json (сгенерирован tools/make-demo.mjs). Никаких записей
-// на диск и никакого fs.watch — только просмотр.
-const DEMO_STATE_PATH = path.join(PANEL_ROOT, 'examples', 'demo-state.json');
-let demoStateCache = null;
-async function loadDemoState() {
-  if (!demoStateCache) {
-    const raw = await fsp.readFile(DEMO_STATE_PATH, 'utf8');
-    demoStateCache = JSON.parse(raw);
-  }
-  return demoStateCache;
-}
-
-/** Синтетическая живая лента для демо (реальные события не читаются). */
-function demoLog() {
-  return [];
-}
-
-/** Синтетические активные аренды для демо, в форме buildLeasesView(). */
-function demoLeases() {
-  const now = Date.now();
-  const iso = (ms) => new Date(now + ms).toISOString();
-  return [
-    {
-      id: 'demo-lease-1',
-      projectName: 'quantum-ledger',
-      rel: 'src/index.ts',
-      owner: 'gamedesigner',
-      reason: 'правка API-слоя',
-      acquiredAt: new Date(now - 5 * 60000).toISOString(),
-      expiresAt: iso(25 * 60000),
-      leftMs: 25 * 60000,
-      whole: false,
-    },
-    {
-      id: 'demo-lease-2',
-      projectName: 'salebot-classic',
-      rel: '.',
-      owner: 'codex',
-      reason: 'рефакторинг дубликатов',
-      acquiredAt: new Date(now - 12 * 60000).toISOString(),
-      expiresAt: iso(18 * 60000),
-      leftMs: 18 * 60000,
-      whole: true,
-    },
-  ];
-}
-
 /** Коды флагов состояния → визуальные классы фронтенда. */
 const FLAG_KIND = {
   stale: 'stale',
@@ -739,8 +691,80 @@ function readJsonBody(req, limit = 1024 * 1024) {
   });
 }
 
+/**
+ * Зависимости production-сервера: реальные состояние/конфиг/скан/отчёты.
+ * Демо-режим НЕ импортирует и не модифицирует этот объект — он строит
+ * свой собственный (см. src/demo/index.js). Production-код не содержит ни
+ * одной ветки demo благодаря инъекции deps.
+ */
+export function productionDeps() {
+  return {
+    readonly: false,
+    disableOpen: false,
+    disableWatch: false,
+    loadState,
+    loadConfig,
+    buildLog: () => readLog(),
+    buildLeases: () => buildLeasesView(),
+    conflictsCount: () => buildConflictsCount(),
+    applyConfigPatch: async (body) => {
+      const checked = sanitizeConfigPatch(body);
+      if (checked.error) throw Object.assign(new Error(checked.error), { status: 400 });
+      const current = (await loadConfig()) || {};
+      const merged = { ...current, ...checked.patch };
+      if (checked.patch.dup) merged.dup = { ...(current.dup || {}), ...checked.patch.dup };
+      if (checked.patch.leases) merged.leases = { ...(current.leases || {}), ...checked.patch.leases };
+      if (checked.patch.rating) merged.rating = { ...(current.rating || {}), ...checked.patch.rating };
+      await saveConfig(merged);
+      return { keys: Object.keys(checked.patch).join(', '), config: await loadConfig() };
+    },
+    startScan: (ctx) => productionStartScan(ctx),
+    writeReport: async (state) => writeReports(state),
+  };
+}
+
+/**
+ * Реальный скан: валидируем конфиг, запускаем runScan и транслируем прогресс
+ * в SSE. Контракт ctx: { broadcastScanStatus, broadcastLog, refresh }.
+ * Возвращает { status, body } — сервер сразу отдаёт 202, а runScan дожигает
+ * в фоне и триггерит refresh клиентов через fs.watch (см. /api/events).
+ */
+async function productionStartScan({ broadcastScanStatus, broadcastLog, refresh }) {
+  if (scanStatus.running) {
+    return { status: 409, body: { error: 'Сканирование уже идёт' } };
+  }
+  const cfg = await loadConfig();
+  if (!cfg) {
+    return { status: 400, body: { error: 'Панель не инициализирована (нет .vibe/config.json)' } };
+  }
+  scanStatus.running = true;
+  scanStatus.startedAt = new Date().toISOString();
+  scanStatus.error = null;
+  broadcastScanStatus();
+  broadcastLog('Сканирование запущено из дашборда');
+  let lastSent = 0;
+  runScan(cfg, (p) => {
+    const now = Date.now();
+    if (p.phase === 'git') { broadcastLog('скан: собираю git…'); return; }
+    if (now - lastSent < 1000) return;
+    lastSent = now;
+    const what = p.phase === 'roots' ? 'поиск проектов' : p.phase === 'near' ? `почти-клоны: файлов ${p.files}` : 'сбор метрик';
+    broadcastLog(`скан: ${what} · каталогов ${p.visited ?? 0}${p.found !== undefined ? ` · найдено ${p.found}` : ''}`);
+  }).then((state) => {
+    broadcastLog(`Сканирование завершено: ${state.projects.length} проектов, ${state.dupGroups.length} групп клонов`);
+  }).catch((e) => {
+    scanStatus.error = String((e && e.message) || e);
+    broadcastLog(`Ошибка сканирования: ${scanStatus.error}`);
+  }).finally(() => {
+    scanStatus.running = false;
+    scanStatus.startedAt = null;
+    broadcastScanStatus();
+  });
+  return { status: 202, body: { ok: true } };
+}
+
 /** HTTP-сервер дашборда: статика + API состояния/конфига/скана + SSE /api/events. */
-export async function serve({ port = 5173, host = '127.0.0.1', demo = false } = {}) {
+export async function serve({ port = 5173, host = '127.0.0.1', deps = productionDeps() } = {}) {
   const sseClients = new Set();
   const broadcastLog = (text) => {
     const ts = new Date().toISOString();
@@ -760,17 +784,11 @@ export async function serve({ port = 5173, host = '127.0.0.1', demo = false } = 
     const u = new URL(req.url, `http://${req.headers.host || host}`);
     try {
       if (u.pathname === '/api/state') {
-        const state = demo ? await loadDemoState() : await loadState();
+        const state = await deps.loadState();
         const view = buildView(state);
-        if (demo) {
-          view.log = demoLog();
-          view.leases = demoLeases();
-          view.conflictsCount = 0;
-        } else {
-          view.log = await readLog();
-          view.leases = await buildLeasesView();
-          view.conflictsCount = await buildConflictsCount();
-        }
+        view.log = await deps.buildLog();
+        view.leases = await deps.buildLeases();
+        view.conflictsCount = await deps.conflictsCount();
         res.writeHead(200, {
           'Content-Type': 'application/json; charset=utf-8',
           'Cache-Control': 'no-store',
@@ -781,29 +799,22 @@ export async function serve({ port = 5173, host = '127.0.0.1', demo = false } = 
 
       if (u.pathname === '/api/config') {
         if (req.method === 'POST') {
-          if (demo) {
+          if (deps.readonly) {
             res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ error: 'Демо-режим: настройки только для чтения' }));
+            res.end(JSON.stringify({ error: deps.readonlyMessage || 'Только чтение' }));
             return;
           }
           const body = await readJsonBody(req);
-          const checked = sanitizeConfigPatch(body);
-          if (checked.error) {
-            res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ error: checked.error }));
-            return;
+          try {
+            const result = await deps.applyConfigPatch(body);
+            broadcastLog(`Настройки обновлены: ${result.keys}`);
+            res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ ok: true, config: result.config }));
+          } catch (e) {
+            const st = e.status || 400;
+            res.writeHead(st, { 'Content-Type': 'application/json; charset=utf-8' });
+            res.end(JSON.stringify({ error: e.message }));
           }
-          const current = (await loadConfig()) || {};
-          const merged = { ...current, ...checked.patch };
-          if (checked.patch.dup) merged.dup = { ...(current.dup || {}), ...checked.patch.dup };
-          if (checked.patch.leases) merged.leases = { ...(current.leases || {}), ...checked.patch.leases };
-          if (checked.patch.rating) merged.rating = { ...(current.rating || {}), ...checked.patch.rating };
-          await saveConfig(merged);
-          const keys = Object.keys(checked.patch).join(', ');
-          try { await appendEvent('config.updated', { keys }); } catch { /* журнал не критичен */ }
-          broadcastLog(`Настройки обновлены: ${keys}`);
-          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-          res.end(JSON.stringify({ ok: true, config: await loadConfig() }));
           return;
         }
         res.writeHead(200, {
@@ -825,60 +836,13 @@ export async function serve({ port = 5173, host = '127.0.0.1', demo = false } = 
           return;
         }
         if (req.method === 'POST') {
-          if (demo) {
-            // Демо: не сканируем реальные файлы — просто имитируем завершение,
-            // чтобы кнопка «Обновить данные» на фронте отрабатывала без ошибок.
-            scanStatus.running = true;
-            broadcastScanStatus();
-            setTimeout(() => {
-              scanStatus.running = false;
-              scanStatus.startedAt = null;
-              broadcastScanStatus();
-              for (const c of sseClients) c.send('refresh', { ts: new Date().toISOString() });
-            }, 600);
-            res.writeHead(202, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ ok: true, demo: true }));
-            return;
-          }
-          if (scanStatus.running) {
-            res.writeHead(409, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ error: 'Сканирование уже идёт' }));
-            return;
-          }
-          const cfg = await loadConfig();
-          if (!cfg) {
-            res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
-            res.end(JSON.stringify({ error: 'Панель не инициализирована (нет .vibe/config.json)' }));
-            return;
-          }
-          scanStatus.running = true;
-          scanStatus.startedAt = new Date().toISOString();
-          scanStatus.error = null;
-          broadcastScanStatus();
-          broadcastLog('Сканирование запущено из дашборда');
-          res.writeHead(202, { 'Content-Type': 'application/json; charset=utf-8' });
-          res.end(JSON.stringify({ ok: true }));
-          // Прогресс уходит в живую ленту; state.json триггерит refresh клиентам.
-          let lastSent = 0;
-          runScan(cfg, (p) => {
-            const now = Date.now();
-            if (p.phase === 'git') { broadcastLog('скан: собираю git…'); return; }
-            if (now - lastSent < 1000) return;
-            lastSent = now;
-            const what = p.phase === 'roots' ? 'поиск проектов' : p.phase === 'near' ? `почти-клоны: файлов ${p.files}` : 'сбор метрик';
-            broadcastLog(`скан: ${what} · каталогов ${p.visited ?? 0}${p.found !== undefined ? ` · найдено ${p.found}` : ''}`);
-          }).then((state) => {
-            broadcastLog(`Сканирование завершено: ${state.projects.length} проектов, ${state.dupGroups.length} групп клонов`);
-          }).catch((e) => {
-            scanStatus.error = String((e && e.message) || e);
-            broadcastLog(`Ошибка сканирования: ${scanStatus.error}`);
-          }).finally(() => {
-            scanStatus.running = false;
-            scanStatus.startedAt = null;
-            // Клиент узнаёт о завершении/ошибке независимо от того,
-            // изменился ли state.json (без этого бейдж «сканирую…» висит вечно).
-            broadcastScanStatus();
+          const r = await deps.startScan({
+            broadcastScanStatus,
+            broadcastLog,
+            refresh: (ts) => { for (const c of sseClients) c.send('refresh', { ts }); },
           });
+          res.writeHead(r.status, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify(r.body));
           return;
         }
         res.writeHead(405, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -897,9 +861,9 @@ export async function serve({ port = 5173, host = '127.0.0.1', demo = false } = 
 
       // Открыть папку проекта в Проводнике (локальный сервер — только 127.0.0.1).
       if (u.pathname === '/api/open') {
-        if (demo) {
+        if (deps.disableOpen) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
-          res.end(JSON.stringify({ error: 'Демо-режим: открытие папок отключено' }));
+          res.end(JSON.stringify({ error: deps.openDisabledMessage || 'Открытие папок отключено' }));
           return;
         }
         const target = u.searchParams.get('path');
@@ -922,7 +886,7 @@ export async function serve({ port = 5173, host = '127.0.0.1', demo = false } = 
       }
 
       if (u.pathname === '/api/cleanup') {
-        const state = demo ? await loadDemoState() : await loadState();
+        const state = await deps.loadState();
         const kind = u.searchParams.get('kind') === 'near' ? 'near' : 'exact';
         const minBytes = Number(u.searchParams.get('minBytes')) || 0;
         res.writeHead(200, {
@@ -939,12 +903,12 @@ export async function serve({ port = 5173, host = '127.0.0.1', demo = false } = 
           res.end(JSON.stringify({ error: 'Нужен POST' }));
           return;
         }
-        if (demo) {
+        if (deps.readonly) {
           res.writeHead(403, { 'Content-Type': 'application/json; charset=utf-8' });
-          res.end(JSON.stringify({ error: 'Демо-режим: отчёты не формируются' }));
+          res.end(JSON.stringify({ error: deps.reportDisabledMessage || 'Отчёты отключены' }));
           return;
         }
-        const state = await loadState();
+        const state = await deps.loadState();
         if (!state || !Array.isArray(state.projects)) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
           res.end(JSON.stringify({ error: 'Данных нет — сначала запустите «Обновить данные»' }));
@@ -966,8 +930,8 @@ export async function serve({ port = 5173, host = '127.0.0.1', demo = false } = 
       }
 
       if (u.pathname === '/api/brief') {
-        const state = demo ? await loadDemoState() : await loadState();
-        const leases = demo ? demoLeases() : await buildLeasesView();
+        const state = await deps.loadState();
+        const leases = await deps.buildLeases();
         res.writeHead(200, {
           'Content-Type': 'application/json; charset=utf-8',
           'Cache-Control': 'no-store',
@@ -1022,7 +986,7 @@ export async function serve({ port = 5173, host = '127.0.0.1', demo = false } = 
         // В демо-режиме наблюдение отключено (нет реального .vibe, данные статичны).
         let vibeWatcher = null;
         let refreshQueued = false;
-        if (!demo) {
+        if (!deps.disableWatch) {
           try {
             vibeWatcher = fs.watch(VIBE_DIR, { persistent: false }, () => {
               if (refreshQueued) return;

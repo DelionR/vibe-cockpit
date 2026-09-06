@@ -34,7 +34,8 @@
     "dup": "node bin/vibe.js dup",
     "report": "node bin/vibe.js report",
     "serve": "node bin/vibe.js serve",
-    "demo": "node bin/vibe.js demo",
+    "demo": "node bin/vibe-demo.js",
+    "make-demo": "node src/demo/make-demo.mjs",
     "smoke": "node tools/smoke.mjs",
     "check": "node tools/smoke.mjs"
   }
